@@ -1,6 +1,4 @@
-cd ~/tvOS-Legacy-Patcher
 
-cat << 'EOF' > .github/workflows/release.yml
 name: Build and Publish tvLP Release
 
 on:
