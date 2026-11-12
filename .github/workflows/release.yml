@@ -5,8 +5,8 @@ name: Build & Publish tvLP Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -42,9 +42,10 @@ jobs:
             tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh \
             profiles/ README.md CHANGELOG.md
 
-      - name: Attach Bundle to GitHub Release
+      - name: Publish GitHub Release (No Git Tag Needed)
         uses: softprops/action-gh-release@v2
         with:
+         
           files: dist/tvOS-Legacy-Patcher-macOS15-Intel.zip
           body_path: CHANGELOG.md
 EOF
