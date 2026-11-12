@@ -44,7 +44,6 @@ jobs:
           name: tvOS Legacy Patcher v1.0.0 (macOS 15 Intel)
           files: dist/tvOS-Legacy-Patcher-macOS15-Intel.zip
           body_path: CHANGELOG.md
-EOF
 
 ruby -ryaml -e "YAML.load_file('.github/workflows/release.yml'); puts '[OK] YAML syntax verified!'"
 git add .github/workflows/release.yml
