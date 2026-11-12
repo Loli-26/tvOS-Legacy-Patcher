@@ -1,12 +1,11 @@
 cd ~/tvOS-Legacy-Patcher
 
 cat << 'EOF' > .github/workflows/release.yml
-name: Build & Publish tvLP Release
+name: Build and Publish tvLP Release
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -14,7 +13,7 @@ permissions:
 
 jobs:
   package-release-intel:
-    name: Build on macOS 15 Intel (x86_64)
+    name: Build on macOS 15 Intel
     runs-on: macos-15-intel
     steps:
       - name: Checkout Repository
@@ -25,7 +24,7 @@ jobs:
           uname -m
           sw_vers
 
-      - name: Validate Shell Scripts & JSON Profiles
+      - name: Validate Shell Scripts and JSON Profiles
         run: |
           chmod +x tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh
           bash -n tvlp.sh
@@ -38,14 +37,18 @@ jobs:
       - name: Package All-in-One Intel macOS Release Archive
         run: |
           mkdir -p dist
-          zip -r dist/tvOS-Legacy-Patcher-macOS15-Intel.zip \
-            tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh \
-            profiles/ README.md CHANGELOG.md
+          zip -r dist/tvOS-Legacy-Patcher-macOS15-Intel.zip tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh profiles/ README.md CHANGELOG.md
 
-      - name: Publish GitHub Release (No Git Tag Needed)
+      - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-         
+          tag_name: v1.0.0
+          name: tvOS Legacy Patcher v1.0.0 (macOS 15 Intel)
           files: dist/tvOS-Legacy-Patcher-macOS15-Intel.zip
           body_path: CHANGELOG.md
 EOF
+
+ruby -ryaml -e "YAML.load_file('.github/workflows/release.yml'); puts '[OK] YAML syntax verified!'"
+git add .github/workflows/release.yml
+git commit -m "Fix YAML syntax on line 4 in release.yml"
+git push origin main
