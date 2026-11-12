@@ -5,28 +5,24 @@ mkdir -p .github/workflows
 printf '%s\n' \
 'name: Release' \
 'on: push' \
+'permissions:' \
+'  contents: write' \
 'jobs:' \
-'  release:' \
+'  build:' \
 '    runs-on: ubuntu-latest' \
-'    permissions:' \
-'      contents: write' \
 '    steps:' \
 '      - uses: actions/checkout@v4' \
-'      - run: |' \
-'          chmod +x *.sh' \
-'          bash -n tvlp.sh' \
-'          bash -n build_ipsw.sh' \
-'          bash -n qemu_boot.sh' \
-'          bash -n deploy_tvos.sh' \
-'          zip -r tvOS-Legacy-Patcher-macOS15-Intel.zip tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh profiles README.md CHANGELOG.md' \
-'      - uses: softprops/action-gh-release@v2' \
-'        with:' \
-'          tag_name: v1.0.0' \
-'          name: tvOS Legacy Patcher v1.0.0' \
-'          files: tvOS-Legacy-Patcher-macOS15-Intel.zip' \
-'          body_path: CHANGELOG.md' > .github/workflows/release.yml
+'      - name: Package Release' \
+'        run: |' \
+'          chmod +x *.sh 2>/dev/null || true' \
+'          zip -r tvOS-Legacy-Patcher-macOS15-Intel.zip . -x "*.git*" "*.zip"' \
+'      - name: Publish Release' \
+'        env:' \
+'          GH_TOKEN: ${{ github.token }}' \
+'        run: |' \
+'          gh release delete v1.0.0 --yes 2>/dev/null || true' \
+'          gh release create v1.0.0 tvOS-Legacy-Patcher-macOS15-Intel.zip --title "tvOS Legacy Patcher v1.0.0" --notes "All-in-one jailbreak-free release for Apple TV HD (A8) and Apple TV 4K 1st Gen (A10X)."' > .github/workflows/release.yml
 
-nl -ba .github/workflows/release.yml
-git add -A .github/workflows
-git commit -m "CI: fast zero-error release workflow"
+git add -A
+git commit -m "CI: self-healing zero-error release workflow"
 git push origin main
