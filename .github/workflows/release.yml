@@ -1,6 +1,5 @@
 cd ~/tvOS-Legacy-Patcher
 rm -rf .github/workflows/*
-mkdir -p .github/workflows
 
 ruby -e '
 content = <<~YAML
@@ -10,12 +9,12 @@ content = <<~YAML
       branches:
         - main
     workflow_dispatch:
-  permissions:
-    contents: write
   jobs:
     package-release-intel:
       name: Build on macOS 15 Intel
       runs-on: macos-15-intel
+      permissions:
+        contents: write
       steps:
         - name: Checkout Repository
           uses: actions/checkout@v4
@@ -23,7 +22,7 @@ content = <<~YAML
           run: |
             uname -m
             sw_vers
-        - name: Validate Scripts and Profiles
+        - name: Validate Scripts
           run: |
             chmod +x tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh
             bash -n tvlp.sh
@@ -47,5 +46,5 @@ File.write(".github/workflows/release.yml", content)
 
 nl -ba .github/workflows/release.yml
 git add -A .github/workflows
-git commit -m "CI: replace workflow with clean Ruby-generated release.yml"
+git commit -m "CI: move permissions inside job block to fix line 7"
 git push origin main
