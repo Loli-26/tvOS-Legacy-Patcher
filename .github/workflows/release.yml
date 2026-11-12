@@ -1,0 +1,50 @@
+cd ~/tvOS-Legacy-Patcher
+
+cat << 'EOF' > .github/workflows/release.yml
+name: Build & Publish tvLP Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  package-release-intel:
+    name: Build on macOS 15 Intel (x86_64)
+    runs-on: macos-15-intel
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Intel macOS 15 Runner Architecture
+        run: |
+          uname -m
+          sw_vers
+
+      - name: Validate Shell Scripts & JSON Profiles
+        run: |
+          chmod +x tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh
+          bash -n tvlp.sh
+          bash -n build_ipsw.sh
+          bash -n qemu_boot.sh
+          bash -n deploy_tvos.sh
+          python3 -m json.tool profiles/AppleTV5,3_A8.json > /dev/null
+          python3 -m json.tool profiles/AppleTV6,2_A10X.json > /dev/null
+
+      - name: Package All-in-One Intel macOS Release Archive
+        run: |
+          mkdir -p dist
+          zip -r dist/tvOS-Legacy-Patcher-macOS15-Intel.zip \
+            tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh \
+            profiles/ README.md CHANGELOG.md
+
+      - name: Attach Bundle to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/tvOS-Legacy-Patcher-macOS15-Intel.zip
+          body_path: CHANGELOG.md
+EOF
