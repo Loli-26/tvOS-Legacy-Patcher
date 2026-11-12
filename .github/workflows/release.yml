@@ -1,14 +1,32 @@
 cd ~/tvOS-Legacy-Patcher
 rm -rf .github/workflows/*
+mkdir -p .github/workflows
 
-base64 -d << 'EOF' > .github/workflows/release.yml
-bmFtZTogQnVpbGQgYW5kIFB1Ymxpc2ggdHZMUApvbjogcHVzaApqb2JzOgogIGJ1aWxkOgogICAgcnVucy1vbjogbWFjb3MtMTQtaW50ZWwKICAgIHN0ZXBzOgogICAgICAtIHVzZXM6IGFjdGlvbnMvY2hlY2tvdXRAdg0KICAgICAgLSBuYW1lOiBWYWxpZGF0ZSBhbmQgUGFja2FnZQogICAgICAgIHJ1bjogfAogICAgICAgICAgY2htb2QgK3ggdHZscC5zaCBidWlsZF9pcHN3LnNoIHFlbXVfYm9vdC5zaCBkZXBsb3lfdHZvcy5zaAogICAgICAgICAgYmFzaCAtbiB0dmxwLnNoICYmIGJhc2ggLW4gYnVpbGRfaXBzdy5zaCAmJiBiYXNoIC1uIHFlbXVfYm9vdC5zaCAmJiBiYXNoIC1uIGRlcGxveV90dm9zLnNoCiAgICAgICAgICB6aXAgLXIgdHZPUy1MZWdhY3ktUGF0Y2hlci1JbnRlbC56aXAgdHZscC5zaCBidWlsZF9pcHN3LnNoIHFlbXVfYm9vdC5zaCBkZXBsb3lfdHZvcy5zaCBwcm9maWxlcyBSRUFETUUubWQgQ0hBTkdFTE9HLm1kCiAgICAgIC0gbmFtZTogUHVibGlzaCBSZWxlYXNlCiAgICAgICAgZW52OgogICAgICAgICAgR0hfVE9LRU46ICR7eyBzZWNyZXRzLkdJVEhVQl9UT0tFTiB9fQogICAgICAgIHJ1bjogfAogICAgICAgICAgZ2ggcmVsZWFzZSBkZWxldGUgdjEuMC4wIC0teWVzIDI+L2Rldi9udWxsIHx8IHRydWUKICAgICAgICAgIGdoIHJlbGVhc2UgY3JlYXRlIHYxLjAuMCB0dk9TLUxlZ2FjeS1QYXRjaGVyLUludGVsLnppcCAtLXRpdGxlICJ0dk9TIExlZ2FjeSBQYXRjaGVyIHYxLjAuMCIgLS1ub3Rlcy1maWxlIENIQU5HRUxPRy5tZAo=
-EOF
+printf '%s\n' \
+'name: Release' \
+'on: push' \
+'jobs:' \
+'  release:' \
+'    runs-on: ubuntu-latest' \
+'    permissions:' \
+'      contents: write' \
+'    steps:' \
+'      - uses: actions/checkout@v4' \
+'      - run: |' \
+'          chmod +x *.sh' \
+'          bash -n tvlp.sh' \
+'          bash -n build_ipsw.sh' \
+'          bash -n qemu_boot.sh' \
+'          bash -n deploy_tvos.sh' \
+'          zip -r tvOS-Legacy-Patcher-macOS15-Intel.zip tvlp.sh build_ipsw.sh qemu_boot.sh deploy_tvos.sh profiles README.md CHANGELOG.md' \
+'      - uses: softprops/action-gh-release@v2' \
+'        with:' \
+'          tag_name: v1.0.0' \
+'          name: tvOS Legacy Patcher v1.0.0' \
+'          files: tvOS-Legacy-Patcher-macOS15-Intel.zip' \
+'          body_path: CHANGELOG.md' > .github/workflows/release.yml
 
-sed -i '' 's/actions\/checkout@v/actions\/checkout@v4/' .github/workflows/release.yml
-sed -i '' 's/macos-14-intel/macos-15-intel/' .github/workflows/release.yml
-
-cat .github/workflows/release.yml
+nl -ba .github/workflows/release.yml
 git add -A .github/workflows
-git commit -m "CI: add zero-error base64-decoded macos-15-intel release workflow"
+git commit -m "CI: fast zero-error release workflow"
 git push origin main
