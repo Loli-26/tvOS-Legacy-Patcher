@@ -1,8 +1,4 @@
-cd ~/tvOS-Legacy-Patcher
-rm -rf .github/workflows/*
-mkdir -p .github/workflows
 
-printf '%s\n' \
 'name: Release' \
 'on: push' \
 'permissions:' \
